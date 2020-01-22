@@ -1,5 +1,5 @@
 import sqlite3
-from bottle import route, run, template, request, error
+from bottle import route, run, template, request, error, redirect
 
 
 @route('/todo')
@@ -7,6 +7,17 @@ def todo_list():
     conn = sqlite3.connect('todo.db')
     c = conn.cursor()
     c.execute("SELECT id, task FROM todo WHERE status LIKE '1'")
+    result = c.fetchall()
+    c.close()
+    output = template('table', rows=result)
+    return output
+
+
+@route('/done')
+def done_list():
+    conn = sqlite3.connect('todo.db')
+    c = conn.cursor()
+    c.execute("SELECT id, task FROM todo WHERE status LIKE '0'")
     result = c.fetchall()
     c.close()
     output = template('table', rows=result)
@@ -22,12 +33,11 @@ def new_item():
         c = conn.cursor()
 
         c.execute("INSERT INTO todo (task,status) VALUES (?,?)", (new, 1))
-        new_id = c.lastrowid
 
         conn.commit()
         c.close()
 
-        return f'<p>Новая задача создана, номер задачи: {new_id}</p>'
+        return redirect("/todo")
     else:
         return template('new_task.tpl')
 
@@ -38,7 +48,7 @@ def edit_item(no):
         edit = request.GET.task.strip()
         status = request.GET.status.strip()
 
-        if status == 'open':
+        if status == 'нужно сделать':
             status = 1
         else:
             status = 0
@@ -59,6 +69,16 @@ def edit_item(no):
         return template('edit_task', old=cur_data, no=no)
 
 
+@route('/del/<no:int>')
+def del_task(no):
+    conn = sqlite3.connect('todo.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM todo WHERE id LIKE ?", (str(no),))
+    conn.commit()
+
+    return f'<p>Задача под номером {no} успешно удалена</p>'
+
+
 @route('/item<item:re:[0-9]+>')
 def show_item(item):
     conn = sqlite3.connect('todo.db')
@@ -71,12 +91,15 @@ def show_item(item):
     else:
         return f'Задача: {result[0][0]}'
 
+
 @error(403)
 def mistake403(code):
     return 'Неверный формат передаваемого параметра!'
 
+
 @error(404)
 def mistake404(code):
     return 'Данной страницы не существует!'
+
 
 run(reloader=True)
