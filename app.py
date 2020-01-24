@@ -2,9 +2,30 @@ import bottle_mysql
 from bottle import run, template, request, redirect, static_file, Bottle
 
 app = Bottle()
-plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
+plugin = bottle_mysql.Plugin(dbuser='root', dbpass="*****",
                              dbname='todo')
 app.install(plugin)
+
+
+@app.get('/registration')
+def registration():
+    return template('registration')
+
+
+@app.post('/registration')
+def registration(db):
+    if request.POST.save:
+        name = request.POST.first_name.strip()
+        surname = request.POST.surname.strip()
+        email = request.POST.email.strip()
+        login = request.POST.login.strip()
+        password = request.POST.password.strip()
+
+        db.execute("INSERT INTO todo.users(Name,Surname,Email,Login, Password"
+                   ") VALUES (%s, %s, %s, %s, %s);", (name, surname, email,
+                                                      login, password))
+        return redirect("/todo")
+
 
 
 @app.get('/todo')
