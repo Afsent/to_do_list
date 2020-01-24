@@ -2,7 +2,7 @@ import bottle_mysql
 from bottle import run, template, request, redirect, static_file, Bottle
 
 app = Bottle()
-plugin = bottle_mysql.Plugin(dbuser='root', dbpass="*****",
+plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
                              dbname='todo')
 app.install(plugin)
 
@@ -26,6 +26,27 @@ def registration(db):
                                                       login, password))
         return redirect("/todo")
 
+
+@app.get('/login')
+def sign_in():
+    return template('login')
+
+
+@app.post('/login')
+def sign_in(db):
+    if request.POST.save:
+        login = request.POST.login.strip()
+        password = request.POST.password.strip()
+
+        db.execute("SELECT Name, Surname, Email, Login, Password FROM "
+                   "todo.users WHERE Login LIKE %s;", (login,))
+
+        user = db.fetchone()
+        if password == user['Password']:
+            print(user)
+            return redirect("/todo")
+        else:
+            return redirect('/login')
 
 
 @app.get('/todo')
