@@ -2,23 +2,22 @@ import bottle_mysql
 from bottle import run, template, request, redirect, static_file, Bottle
 
 app = Bottle()
-plugin = bottle_mysql.Plugin(dbuser='root', dbpass="*****",
+plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
                              dbname='todo')
 app.install(plugin)
 
 
-@app.route('/todo')
+@app.get('/todo')
 def todo_list(db):
     db.execute(
         "SELECT ID_tasks, Task FROM todo.tasks  WHERE Status LIKE '1';")
     rows = db.fetchall()
     if rows:
-        print(rows)
         return template('table', rows=rows)
     return "<b>Задач нет</b>"
 
 
-@app.route('/done')
+@app.get('/done')
 def done_list(db):
     db.execute("SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0'")
     rows = db.fetchall()
@@ -27,22 +26,25 @@ def done_list(db):
     return "<b>Задач нет</b>"
 
 
-@app.route('/new', method='GET')
+@app.post('/new')
 def new_item(db):
-    if request.GET.save:
-        new = request.GET.task.strip()
+    if request.POST.save:
+        new = request.POST.task.strip()
         db.execute("INSERT INTO todo.tasks(Task, Status) VALUES (%s,%s);",
                    (new, 1))
         return redirect("/todo")
-    else:
-        return template('new_task.tpl')
 
 
-@app.route('/edit/<no:int>', method='GET')
+@app.get('/new')
+def new_item():
+    return template('new_task.tpl')
+
+
+@app.post('/edit/<no:int>')
 def edit_item(no, db):
-    if request.GET.save:
-        edit = request.GET.task.strip()
-        status = request.GET.status.strip()
+    if request.POST.save:
+        edit = request.POST.task.strip()
+        status = request.POST.status.strip()
 
         if status == 'нужно сделать':
             status = 1
@@ -55,11 +57,17 @@ def edit_item(no, db):
             (edit, status, no))
         return f'<p>Задача под номером {no} успешно обновлена</p><a ' \
                f'href="/todo"></a>'
-    else:
-        return template('edit_task', old=[1], no=no)
 
 
-@app.route('/del/<no:int>')
+@app.get('/edit/<no:int>')
+def edit_item(no, db):
+    db.execute("SELECT Task FROM todo.tasks WHERE ID_tasks LIKE %s;",
+               (no,))
+    cur_data = db.fetchone()
+    return template('edit_task', old=list(cur_data.values())[0], no=no)
+
+
+@app.post('/del/<no:int>')
 def del_task(no, db):
     db.execute(
         "DELETE FROM todo.tasks WHERE ID_tasks LIKE %s;", (no,))

@@ -18,10 +18,11 @@
 <body>
 <div class="container">
     <h3>Изменить задачу под нод номером {{no}}</h3>
-    <form action="/edit/{{no}}" method="get">
+    <form action="/edit/{{no}}" method="post">
         <div class="form-group">
             <label>Название:</label>
-            <input type="text" name="task" value="{{old[0]}}" size="100"
+            <input type="text" name="task" value="{{old}}"
+                   size="100"
                    maxlength="100" class="form-control">
         </div>
         <div class="form-group">

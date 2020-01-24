@@ -17,7 +17,7 @@
 <body>
 <div class="container">
     <h3>Добавте новую задачу:</h3>
-    <form action="/new" method="GET">
+    <form action="/new" method="POST">
         <div class="form-group">
             <label>Название:</label>
             <input type="text" size="100" maxlength="100" name="task" class="form-control">

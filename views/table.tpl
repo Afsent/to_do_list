@@ -18,11 +18,26 @@
 <div class="container">
     <h1>Список задач:</h1>
     <table class="table table-hover">
+        <tr>
+            <td><h3>ID</h3></td>
+            <td><h3>Задача</h3></td>
+        </tr>
         %for row in rows:
         <tr>
             %for col in row.values():
             <td>{{col}}</td>
             %end
+            <td>
+                <a href="/edit/{{int(list(row.values())[0])}}"
+                   class="btn btn-warning mb-2">Изменить</a>
+            </td>
+            <td>
+                <form action="/del/{{int(list(row.values())[0])}}"
+                      method='post'>
+                    <input type="submit" value="Удалить"
+                           class="btn btn-danger mb-2">
+                </form>
+            </td>
         </tr>
         %end
     </table>
