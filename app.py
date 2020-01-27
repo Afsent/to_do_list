@@ -1,4 +1,5 @@
 import bottle_mysql
+from MySQLdb._exceptions import IntegrityError
 from bottle import run, template, request, redirect, static_file, Bottle
 import re
 
@@ -12,10 +13,8 @@ def validate_email(email):
     pattern = re.compile(r'\w+\@\w+\.\w+')
     match = re.fullmatch(pattern, email)
     if match:
-        print(match)
         return True
     else:
-        print(match)
         return False
 
 
@@ -41,9 +40,14 @@ def registration(db):
             msg = 'Пароль должен быть не менее 8 символов'
             return template('registration', msg=msg)
 
-        db.execute("INSERT INTO todo.users(Name,Surname,Email,Login, Password"
-                   ") VALUES (%s, %s, %s, %s, %s);", (name, surname, email,
-                                                      login, password))
+        try:
+            db.execute(
+                "INSERT INTO todo.users(Name,Surname,Email,Login, Password"
+                ") VALUES (%s, %s, %s, %s, %s);", (name, surname, email,
+                                                   login, password))
+        except IntegrityError as e:
+            return template('registration', msg=str(e).split(',')[1][2:-2])
+
         return redirect("/todo")
 
 
@@ -131,8 +135,11 @@ def edit_item(no, db):
 
 @app.post('/del/<no:int>')
 def del_task(no, db):
-    db.execute(
-        "DELETE FROM todo.tasks WHERE ID_tasks LIKE %s;", (no,))
+    try:
+        db.execute(
+            "DELETE FROM todo.tasks WHERE ID_tasks LIKE %s;", (no,))
+    except:
+        return f'<p>Задачу под номером {no} удалить не удалось</p>'
     return f'<p>Задача под номером {no} успешно удалена</p>'
 
 

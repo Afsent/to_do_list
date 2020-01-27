@@ -15,9 +15,17 @@
     <title>Задачи</title>
 </head>
 <body>
-    <div>
-        <b>{{msg}}</b>
+%if msg:
+    <div class="container-sm col-6" align="center">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{msg}}
+            <button type="button" class="close" data-dismiss="alert"
+                    aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     </div>
+%end
 <div class="container">
     <h1>Список задач:</h1>
     <table class="table table-hover">

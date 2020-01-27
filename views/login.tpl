@@ -15,10 +15,17 @@
     <title>Регистрация</title>
 </head>
 <body>
-<div>
-    <b>{{msg}}</b>
-</div>
-
+%if msg:
+    <div class="container-sm col-6" align="center">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{msg}}
+            <button type="button" class="close" data-dismiss="alert"
+                    aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+%end
 <div class="container-sm col-6">
     <h3>Добро пожаловать</h3>
     <form action="/login" method="POST">
