@@ -1,5 +1,6 @@
 import bottle_mysql
 from bottle import run, template, request, redirect, static_file, Bottle
+import re
 
 app = Bottle()
 plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
@@ -7,9 +8,20 @@ plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
 app.install(plugin)
 
 
+def validate_email(email):
+    pattern = re.compile(r'\w+\@\w+\.\w+')
+    match = re.fullmatch(pattern, email)
+    if match:
+        print(match)
+        return True
+    else:
+        print(match)
+        return False
+
+
 @app.get('/registration')
 def registration():
-    return template('registration')
+    return template('registration', msg='')
 
 
 @app.post('/registration')
@@ -21,6 +33,14 @@ def registration(db):
         login = request.POST.login.strip()
         password = request.POST.password.strip()
 
+        if not validate_email(email):
+            msg = 'Неверный формат email'
+            return template('registration', msg=msg)
+
+        if len(password) < 8:
+            msg = 'Пароль должен быть не менее 8 символов'
+            return template('registration', msg=msg)
+
         db.execute("INSERT INTO todo.users(Name,Surname,Email,Login, Password"
                    ") VALUES (%s, %s, %s, %s, %s);", (name, surname, email,
                                                       login, password))
@@ -29,7 +49,7 @@ def registration(db):
 
 @app.get('/login')
 def sign_in():
-    return template('login')
+    return template('login', msg='')
 
 
 @app.post('/login')
@@ -46,7 +66,7 @@ def sign_in(db):
             print(user)
             return redirect("/todo")
         else:
-            return redirect('/login')
+            return template('login', msg='Неправильный пароль')
 
 
 @app.get('/todo')
@@ -55,7 +75,7 @@ def todo_list(db):
         "SELECT ID_tasks, Task FROM todo.tasks  WHERE Status LIKE '1';")
     rows = db.fetchall()
     if rows:
-        return template('table', rows=rows)
+        return template('table', rows=rows, msg='')
     return "<b>Задач нет</b>"
 
 
@@ -64,7 +84,7 @@ def done_list(db):
     db.execute("SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0'")
     rows = db.fetchall()
     if rows:
-        return template('table', rows=rows)
+        return template('table', rows=rows, msg='')
     return "<b>Задач нет</b>"
 
 

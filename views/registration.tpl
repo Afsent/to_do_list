@@ -15,6 +15,9 @@
     <title>Регистрация</title>
 </head>
 <body>
+    <div>
+        <b>{{msg}}</b>
+    </div>
 <div class="container-sm col-6">
     <h3>Добро пожаловать</h3>
     <form action="/registration" method="POST">

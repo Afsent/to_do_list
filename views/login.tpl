@@ -15,10 +15,14 @@
     <title>Регистрация</title>
 </head>
 <body>
+<div>
+    <b>{{msg}}</b>
+</div>
+
 <div class="container-sm col-6">
     <h3>Добро пожаловать</h3>
     <form action="/login" method="POST">
-        <div class="form-group col-md-6">
+        <div class="form-group">
             <label for="inputPassword4">Логин</label>
             <input type="text" class="form-control"
                    id="inputLogin" name="login">

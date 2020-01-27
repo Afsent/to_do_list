@@ -15,6 +15,9 @@
     <title>Задачи</title>
 </head>
 <body>
+    <div>
+        <b>{{msg}}</b>
+    </div>
 <div class="container">
     <h1>Список задач:</h1>
     <table class="table table-hover">
