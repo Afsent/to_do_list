@@ -2,11 +2,16 @@ import bottle_mysql
 from MySQLdb._exceptions import IntegrityError
 from bottle import run, template, request, redirect, static_file, Bottle
 import re
+import os
+import auth
+
+key = os.urandom(24)
 
 app = Bottle()
 plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
                              dbname='todo')
 app.install(plugin)
+app.config['SECRET_KEY'] = key
 
 
 def validate_email(email):
@@ -64,6 +69,8 @@ def sign_in(db):
 
         user = db.fetchone()
         if password == user['Password']:
+            token = auth.encode_auth_token(app, user['Login'])
+            print(token)
             return redirect("/todo")
         else:
             return template('login', msg='Неправильный пароль')
@@ -115,8 +122,12 @@ def edit_item(no, db):
             "UPDATE todo.tasks SET Task = %s, Status = %s WHERE ID_tasks "
             "LIKE %s;",
             (edit, status, no))
-        return f'<p>Задача под номером {no} успешно обновлена</p><a ' \
-               f'href="/todo"></a>'
+
+        msg = f'Задача под номером {no} успешно обновлена'
+        db.execute(
+            "SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0'")
+        rows = db.fetchall()
+        return template('table', rows=rows, msg=msg)
 
 
 @app.get('/edit/<no:int>')
@@ -132,9 +143,13 @@ def del_task(no, db):
     try:
         db.execute(
             "DELETE FROM todo.tasks WHERE ID_tasks LIKE %s;", (no,))
+
+        msg = f'Задача под номером {no} успешно удалена'
     except:
-        return f'<p>Задачу под номером {no} удалить не удалось</p>'
-    return f'<p>Задача под номером {no} успешно удалена</p>'
+        msg = f'Задачу под номером {no} удалить не удалось'
+    db.execute("SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0'")
+    rows = db.fetchall()
+    return template('table', rows=rows, msg=msg)
 
 
 @app.route('/static/:filename#.*#')
