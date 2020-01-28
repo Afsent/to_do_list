@@ -15,6 +15,7 @@
     <title>Регистрация</title>
 </head>
 <body>
+% include('header.tpl')
 %if msg:
     <div class="container-sm col-6" align="center">
         <div class="alert alert-danger alert-dismissible fade show" role="alert">

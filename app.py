@@ -12,10 +12,7 @@ app.install(plugin)
 def validate_email(email):
     pattern = re.compile(r'\w+\@\w+\.\w+')
     match = re.fullmatch(pattern, email)
-    if match:
-        return True
-    else:
-        return False
+    return True if match else False
 
 
 @app.get('/registration')
@@ -67,7 +64,6 @@ def sign_in(db):
 
         user = db.fetchone()
         if password == user['Password']:
-            print(user)
             return redirect("/todo")
         else:
             return template('login', msg='Неправильный пароль')
@@ -80,16 +76,14 @@ def todo_list(db):
     rows = db.fetchall()
     if rows:
         return template('table', rows=rows, msg='')
-    return "<b>Задач нет</b>"
+    return template('table', rows=[], msg='')
 
 
 @app.get('/done')
 def done_list(db):
     db.execute("SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0'")
     rows = db.fetchall()
-    if rows:
-        return template('table', rows=rows, msg='')
-    return "<b>Задач нет</b>"
+    return template('table', rows=rows, msg='')
 
 
 @app.post('/new')

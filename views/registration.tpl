@@ -15,6 +15,7 @@
     <title>Регистрация</title>
 </head>
 <body>
+% include('header.tpl')
 %if msg:
     <div class="container-sm col-6" align="center">
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -33,35 +34,55 @@
             <div class="form-group col-md-6">
                 <label>Имя</label>
                 <input type="text" size="100" maxlength="100" name="first_name"
-                       class="form-control">
+                       class="form-control" required>
             </div>
             <div class="form-group col-md-6">
                 <label>Фамилия</label>
                 <input type="text" size="100" maxlength="100" name="surname"
-                       class="form-control">
+                       class="form-control" required>
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="inputEmail4">Email</label>
                 <input type="email" class="form-control" id="inputEmail4"
-                       name="email">
+                       name="email" required>
             </div>
             <div class="form-group col-md-6">
                 <label for="inputPassword4">Логин</label>
                 <input type="text" class="form-control"
-                       id="inputLogin" name="login">
+                       id="inputLogin" name="login" required>
             </div>
         </div>
         <div class="form-group">
             <label for="inputPassword4">Пароль</label>
             <input type="password" class="form-control"
-                   id="inputPassword4" name="password">
+                   id="inputPassword4" name="password" required>
         </div>
         <input type="submit" name="save" value="Зарегистрироваться"
                class="btn btn-primary mb-2">
     </form>
 </div>
+<script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.getElementsByClassName('needs-validation');
+    // Loop over them and prevent submission
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"

@@ -15,6 +15,7 @@
     <title>Новая задача</title>
 </head>
 <body>
+% include('header.tpl')
 <div class="container">
     <h3>Добавте новую задачу:</h3>
     <form action="/new" method="POST">
