@@ -1,12 +1,13 @@
 import bottle_mysql
 from MySQLdb._exceptions import IntegrityError
-from bottle import run, template, request, redirect, static_file, Bottle
+from bottle import run, template, request, redirect, static_file, Bottle, \
+    response
 import re
 import os
 import auth
 
 key = os.urandom(24)
-
+key_cookie = os.urandom(20)
 
 app = Bottle()
 plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
@@ -19,6 +20,12 @@ def validate_email(email):
     pattern = re.compile(r'\w+\@\w+\.\w+')
     match = re.fullmatch(pattern, email)
     return True if match else False
+
+
+def is_auth():
+    token = request.get_cookie("token", secret=key_cookie)
+    login = auth.decode_auth_token(app, token)
+    return True if login else False
 
 
 @app.get('/registration')
@@ -61,38 +68,40 @@ def sign_in():
 
 @app.post('/login')
 def sign_in(db):
-    if request.POST.save:
-        login = request.POST.login.strip()
-        password = request.POST.password.strip()
+    login = request.POST.login.strip()
+    password = request.POST.password.strip()
 
-        db.execute("SELECT Name, Surname, Email, Login, Password FROM "
-                   "todo.users WHERE Login LIKE %s;", (login,))
+    db.execute("SELECT Name, Surname, Email, Login, Password FROM "
+               "todo.users WHERE Login LIKE %s;", (login,))
 
-        user = db.fetchone()
-        if user:
-            if password == user['Password']:
-                token = auth.encode_auth_token(app, user['Login'])
-                print(token)
-                db.execute(
-                    'UPDATE todo.users SET Token = %s  WHERE Login LIKE %s;',
-                    (token, login))
-                print(auth.decode_auth_token(app, token))
-                return redirect("/todo")
-            else:
-                return template('login', msg='Неправильный пароль')
+    user = db.fetchone()
+    if user:
+        if password == user['Password']:
+            token = auth.encode_auth_token(app, user['Login'])
+            print(token)
+            db.execute(
+                'UPDATE todo.users SET Token = %s  WHERE Login LIKE %s;',
+                (token, login))
+            response.set_cookie("token", token, secret=key_cookie)
+            return redirect("/todo")
         else:
-            return template('login', msg='Не удалось найти пользователя с '
-                                         'таким именем')
+            return template('login', msg='Неправильный пароль')
+    else:
+        return template('login', msg='Не удалось найти пользователя с '
+                                     'таким именем')
 
 
 @app.get('/todo')
 def todo_list(db):
-    db.execute(
-        "SELECT ID_tasks, Task FROM todo.tasks  WHERE Status LIKE '1';")
-    rows = db.fetchall()
-    if rows:
-        return template('table', rows=rows, msg='')
-    return template('table', rows=[], msg='')
+    if not is_auth():
+        return redirect('/login')
+    else:
+        db.execute(
+            "SELECT ID_tasks, Task FROM todo.tasks  WHERE Status LIKE '1';")
+        rows = db.fetchall()
+        if rows:
+            return template('table', rows=rows, msg='')
+        return template('table', rows=[], msg='')
 
 
 @app.get('/done')
