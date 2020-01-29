@@ -7,6 +7,7 @@ import auth
 
 key = os.urandom(24)
 
+
 app = Bottle()
 plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
                              dbname='todo')
@@ -72,6 +73,10 @@ def sign_in(db):
             if password == user['Password']:
                 token = auth.encode_auth_token(app, user['Login'])
                 print(token)
+                db.execute(
+                    'UPDATE todo.users SET Token = %s  WHERE Login LIKE %s;',
+                    (token, login))
+                print(auth.decode_auth_token(app, token))
                 return redirect("/todo")
             else:
                 return template('login', msg='Неправильный пароль')
@@ -168,7 +173,7 @@ def mistake403(err):
 
 @app.error(404)
 def mistake404(err):
-    return f'Ошибка 404. Данной страницы не существует!'
+    return 'Ошибка 404. Данной страницы не существует!'
 
 
 run(app, reloader=True, debug=True)

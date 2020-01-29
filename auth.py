@@ -5,6 +5,7 @@ import datetime
 def encode_auth_token(app, login):
     """
     Generates the Auth Token
+    :param app:
     :return: string
     """
     try:
@@ -21,3 +22,20 @@ def encode_auth_token(app, login):
         )
     except Exception as e:
         return e
+
+
+def decode_auth_token(app, auth_token):
+    """
+    Decodes the auth token
+    :param app:
+    :param auth_token:
+    :return: integer|string
+    """
+    try:
+        payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'),
+                             algorithm='HS256')
+        return payload['sub']
+    except jwt.ExpiredSignatureError:
+        return 'Signature expired. Please log in again.'
+    except jwt.InvalidTokenError:
+        return 'Invalid token. Please log in again.'
