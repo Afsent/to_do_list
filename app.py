@@ -68,12 +68,16 @@ def sign_in(db):
                    "todo.users WHERE Login LIKE %s;", (login,))
 
         user = db.fetchone()
-        if password == user['Password']:
-            token = auth.encode_auth_token(app, user['Login'])
-            print(token)
-            return redirect("/todo")
+        if user:
+            if password == user['Password']:
+                token = auth.encode_auth_token(app, user['Login'])
+                print(token)
+                return redirect("/todo")
+            else:
+                return template('login', msg='Неправильный пароль')
         else:
-            return template('login', msg='Неправильный пароль')
+            return template('login', msg='Не удалось найти пользователя с '
+                                         'таким именем')
 
 
 @app.get('/todo')
