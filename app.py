@@ -1,5 +1,4 @@
 import bottle_mysql
-from MySQLdb._exceptions import IntegrityError
 from bottle import run, template, request, redirect, static_file, Bottle, \
     response
 import re
@@ -35,15 +34,15 @@ def exist(db, value, kind):
     elif kind == 'Email':
         db.execute("SELECT ID_user FROM "
                    "todo.users WHERE Email LIKE %s;", (value,))
-    print(value, kind)
     item = db.fetchone()
     if item is None:
-        print('False')
         return False
     else:
-        print('True')
         return True
 
+@app.get('/')
+def main():
+    return template('main')
 
 @app.get('/registration')
 def registration():
@@ -74,12 +73,9 @@ def registration(db):
         msg = 'Пароль должен быть не менее 8 символов'
         return template('registration', msg=msg)
 
-    try:
-        db.execute(
-            "INSERT INTO todo.users(Name,Surname,Email,Login, Password) VALUES (%s, %s, %s, %s, %s);",
-            (name, surname, email, login, password))
-    except IntegrityError as e:
-        return template('registration', msg=str(e).split(',')[1][2:-2])
+    db.execute(
+        "INSERT INTO todo.users(Name,Surname,Email,Login, Password) VALUES (%s, %s, %s, %s, %s);",
+        (name, surname, email, login, password))
 
     return redirect("/todo")
 
@@ -101,7 +97,6 @@ def sign_in(db):
     if user:
         if password == user['Password']:
             token = auth.encode_auth_token(app, user['Login'])
-            print(token)
             response.set_cookie("token", token, secret=key_cookie)
             return redirect("/todo")
         else:
@@ -114,7 +109,7 @@ def sign_in(db):
 @app.get('/logout')
 def sign_out():
     response.delete_cookie("token")
-    return redirect('/login')
+    return redirect('/')
 
 
 @app.get('/todo')
