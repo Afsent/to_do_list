@@ -1,4 +1,5 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark"
+     style="margin-bottom: 1rem">
     <div class="container">
         <a class="navbar-brand" href="/todo">TODO</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -20,6 +21,9 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/login">Вход</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Выход</a>
                 </li>
             </ul>
         </div>

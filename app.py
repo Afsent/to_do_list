@@ -74,7 +74,6 @@ def registration(db):
         msg = 'Пароль должен быть не менее 8 символов'
         return template('registration', msg=msg)
 
-    # token = auth.encode_auth_token(app, login)
     try:
         db.execute(
             "INSERT INTO todo.users(Name,Surname,Email,Login, Password) VALUES (%s, %s, %s, %s, %s);",
@@ -110,6 +109,12 @@ def sign_in(db):
     else:
         return template('login', msg='Не удалось найти пользователя с '
                                      'таким именем')
+
+
+@app.get('/logout')
+def sign_out():
+    response.delete_cookie("token")
+    return redirect('/login')
 
 
 @app.get('/todo')
