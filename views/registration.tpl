@@ -49,7 +49,7 @@
                 <label for="inputEmail4">Email</label>
                 <input type="email" class="form-control" id="inputEmail4"
                        name="email" required>
-                <span id="valid"></span>
+                <span id="validEmail"></span>
             </div>
             <div class="form-group col-md-6">
                 <label for="inputPassword4">Логин</label>
@@ -61,6 +61,7 @@
             <label for="inputPassword4">Пароль</label>
             <input type="password" class="form-control"
                    id="inputPassword4" name="password" required>
+            <span id="validPassword"></span>
         </div>
         <input type="submit" name="save" value="Зарегистрироваться"
                class="btn btn-primary mb-2" id="button">
