@@ -40,9 +40,11 @@ def exist(db, value, kind):
     else:
         return True
 
+
 @app.get('/')
 def main():
     return template('main')
+
 
 @app.get('/registration')
 def registration():
@@ -92,7 +94,6 @@ def sign_in(db):
 
     db.execute("SELECT ID_user, Login, Password FROM "
                "todo.users WHERE Login LIKE %s;", (login,))
-
     user = db.fetchone()
     if user:
         if password == user['Password']:

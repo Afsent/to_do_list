@@ -13,19 +13,21 @@
           crossorigin="anonymous">
 
     <title>Регистрация</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/validate.js"></script>
 </head>
 <body>
 % include('header.tpl')
 %if msg:
-    <div class="container-sm col-6" align="center">
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{msg}}
-            <button type="button" class="close" data-dismiss="alert"
-                    aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
+<div class="container-sm col-6" align="center">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{msg}}
+        <button type="button" class="close" data-dismiss="alert"
+                aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
+</div>
 %end
 <div class="container-sm col-6">
     <h3>Добро пожаловать</h3>
@@ -47,6 +49,7 @@
                 <label for="inputEmail4">Email</label>
                 <input type="email" class="form-control" id="inputEmail4"
                        name="email" required>
+                <span id="valid"></span>
             </div>
             <div class="form-group col-md-6">
                 <label for="inputPassword4">Логин</label>
@@ -63,26 +66,6 @@
                class="btn btn-primary mb-2">
     </form>
 </div>
-<script>
-// Example starter JavaScript for disabling form submissions if there are invalid fields
-(function() {
-  'use strict';
-  window.addEventListener('load', function() {
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    var forms = document.getElementsByClassName('needs-validation');
-    // Loop over them and prevent submission
-    var validation = Array.prototype.filter.call(forms, function(form) {
-      form.addEventListener('submit', function(event) {
-        if (form.checkValidity() === false) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        form.classList.add('was-validated');
-      }, false);
-    });
-  }, false);
-})();
-</script>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
