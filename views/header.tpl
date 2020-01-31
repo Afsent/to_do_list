@@ -16,16 +16,23 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/new">Новая задача</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/registration">Регистрация</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/login">Вход</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Выход</a>
-                </li>
             </ul>
+
         </div>
+        <ul class="nav navbar-nav navbar-right">
+            % from bottle import request
+            % if request.get_cookie('token') is None:
+            <li class="nav-item">
+                <a class="nav-link" href="/registration">Регистрация</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/login">Вход</a>
+            </li>
+            % else:
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Выход</a>
+            </li>
+            % end
+        </ul>
     </div>
 </nav>
