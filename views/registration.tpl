@@ -63,7 +63,7 @@
                    id="inputPassword4" name="password" required>
         </div>
         <input type="submit" name="save" value="Зарегистрироваться"
-               class="btn btn-primary mb-2">
+               class="btn btn-primary mb-2" id="button">
     </form>
 </div>
 <!-- Optional JavaScript -->

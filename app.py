@@ -16,7 +16,7 @@ app.config['SECRET_KEY'] = key
 
 
 def validate_email(email):
-    pattern = re.compile(r'\w+\@\w+\.\w+')
+    pattern = re.compile(r'^\w{3,}@\w{3,}\.\w{2,4}$')
     match = re.fullmatch(pattern, email)
     return True if match else False
 
