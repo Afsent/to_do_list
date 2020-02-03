@@ -5,3 +5,12 @@
 
 Приложение реализовано на основе фреймворка bottle.py, с использованием jQuery, MySQL, Json Web Token, Bootstrap4. 
 Реализована проверка вводимых данных при регистрации как на стороне сервера, так и на стороне клиента.
+
+## Скриншоты интерфейса
+Страница регистрации:
+
+![alt-регистрация](https://github.com/Afsent/to_do_list/blob/master/images/registration.png "Регистрация")
+
+Страница невыполненных задач:
+
+![alt-задачи](https://github.com/Afsent/to_do_list/blob/master/images/todo_list.PNG "Задачи")
