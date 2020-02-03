@@ -79,6 +79,11 @@ def registration(db):
         "INSERT INTO todo.users(Name,Surname,Email,Login, Password) VALUES (%s, %s, %s, %s, %s);",
         (name, surname, email, login, password))
 
+    db.execute("SELECT ID_user FROM todo.users WHERE Login LIKE %s;", (login,))
+    user = db.fetchone()
+
+    token = auth.encode_auth_token(app, user['ID_user'])
+    response.set_cookie("token", token, secret=key_cookie)
     return redirect("/todo")
 
 

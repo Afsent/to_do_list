@@ -1,5 +1,6 @@
 import jwt
 import datetime
+from bottle import response
 
 
 def encode_auth_token(app, user_id):
@@ -11,7 +12,7 @@ def encode_auth_token(app, user_id):
     try:
         payload = {
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0,
-                                                                   seconds=5),
+                                                                   minutes=1),
             'iat': datetime.datetime.utcnow(),
             'sub': user_id
         }
@@ -36,6 +37,8 @@ def decode_auth_token(app, auth_token):
                              algorithm='HS256')
         return payload['sub']
     except jwt.ExpiredSignatureError:
+        response.delete_cookie("token")
         return False
     except jwt.InvalidTokenError:
+        response.delete_cookie("token")
         return False
