@@ -2,7 +2,7 @@ import jwt
 import datetime
 
 
-def encode_auth_token(app, login):
+def encode_auth_token(app, user_id):
     """
     Generates the Auth Token
     :param app:
@@ -13,7 +13,7 @@ def encode_auth_token(app, login):
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0,
                                                                    seconds=5),
             'iat': datetime.datetime.utcnow(),
-            'sub': login
+            'sub': user_id
         }
         return jwt.encode(
             payload,

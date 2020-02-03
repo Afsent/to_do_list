@@ -23,8 +23,8 @@ def validate_email(email):
 
 def is_auth():
     token = request.get_cookie("token", secret=key_cookie)
-    login = auth.decode_auth_token(app, token)
-    return True if login else False
+    user_id = auth.decode_auth_token(app, token)
+    return True if user_id else False
 
 
 def exist(db, value, kind):
@@ -97,7 +97,7 @@ def sign_in(db):
     user = db.fetchone()
     if user:
         if password == user['Password']:
-            token = auth.encode_auth_token(app, user['Login'])
+            token = auth.encode_auth_token(app, user['ID_user'])
             response.set_cookie("token", token, secret=key_cookie)
             return redirect("/todo")
         else:
@@ -118,8 +118,11 @@ def todo_list(db):
     if not is_auth():
         return redirect('/login')
     else:
+        token = request.get_cookie("token", secret=key_cookie)
+        user_id = auth.decode_auth_token(app, token)
         db.execute(
-            "SELECT ID_tasks, Task FROM todo.tasks  WHERE Status LIKE '1';")
+            "SELECT ID_tasks, Task FROM todo.tasks  WHERE Status = '1' AND "
+            "ID_user = %s;", (user_id,))
         rows = db.fetchall()
         return template('table', rows=rows, msg='')
 
@@ -129,8 +132,11 @@ def done_list(db):
     if not is_auth():
         return redirect('/login')
     else:
+        token = request.get_cookie("token", secret=key_cookie)
+        user_id = auth.decode_auth_token(app, token)
         db.execute(
-            "SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0'")
+            "SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0' AND ID_user = %s;",
+            (user_id,))
         rows = db.fetchall()
         return template('table', rows=rows, msg='')
 
@@ -140,9 +146,12 @@ def new_item(db):
     if not is_auth():
         return redirect('/login')
     else:
+        token = request.get_cookie("token", secret=key_cookie)
+        user_id = auth.decode_auth_token(app, token)
         new = request.POST.task.strip()
-        db.execute("INSERT INTO todo.tasks(Task, Status) VALUES (%s,%s);",
-                   (new, 1))
+        db.execute("INSERT INTO todo.tasks(Task, Status, ID_user) VALUES ("
+                   "%s,%s,%s);",
+                   (new, 1, user_id))
         return redirect("/todo")
 
 
@@ -159,6 +168,9 @@ def edit_item(no, db):
     if not is_auth():
         return redirect('/login')
     else:
+        token = request.get_cookie("token", secret=key_cookie)
+        user_id = auth.decode_auth_token(app, token)
+
         edit = request.POST.task.strip()
         status = request.POST.status.strip()
 
@@ -168,15 +180,12 @@ def edit_item(no, db):
             status = 0
 
         db.execute(
-            "UPDATE todo.tasks SET Task = %s, Status = %s WHERE ID_tasks "
-            "LIKE %s;",
-            (edit, status, no))
+            "UPDATE todo.tasks SET Task = %s, Status = %s WHERE ID_tasks = "
+            "%s AND ID_user = %s;",
+            (edit, status, no, user_id))
 
-        msg = f'Задача под номером {no} успешно обновлена'
-        db.execute(
-            "SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0'")
-        rows = db.fetchall()
-        return template('table', rows=rows, msg=msg)
+        # msg = f'Задача под номером {no} успешно обновлена'
+        return redirect('/todo')
 
 
 @app.get('/edit/<no:int>')
@@ -184,8 +193,11 @@ def edit_item(no, db):
     if not is_auth():
         return redirect('/login')
     else:
-        db.execute("SELECT Task FROM todo.tasks WHERE ID_tasks LIKE %s;",
-                   (no,))
+        token = request.get_cookie("token", secret=key_cookie)
+        user_id = auth.decode_auth_token(app, token)
+        db.execute("SELECT Task FROM todo.tasks WHERE ID_tasks = %s AND "
+                   "ID_user = %s;",
+                   (no, user_id))
         cur_data = db.fetchone()
         return template('edit_task', old=list(cur_data.values())[0], no=no)
 
@@ -196,16 +208,17 @@ def del_task(no, db):
         return redirect('/login')
     else:
         try:
+            token = request.get_cookie("token", secret=key_cookie)
+            user_id = auth.decode_auth_token(app, token)
             db.execute(
-                "DELETE FROM todo.tasks WHERE ID_tasks LIKE %s;", (no,))
+                "DELETE FROM todo.tasks WHERE ID_tasks = %s AND "
+                "ID_user = %s;", (no, user_id))
 
-            msg = f'Задача под номером {no} успешно удалена'
+            # msg = f'Задача под номером {no} успешно удалена'
         except:
-            msg = f'Задачу под номером {no} удалить не удалось'
-        db.execute(
-            "SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0'")
-        rows = db.fetchall()
-        return template('table', rows=rows, msg=msg)
+            # msg = f'Задачу под номером {no} удалить не удалось'
+            pass
+        return redirect('/todo')
 
 
 @app.route('/static/:filename#.*#')
