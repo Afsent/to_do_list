@@ -16,7 +16,7 @@
 </head>
 <body>
 % include('header.tpl')
-<div class="container">
+<div class="container-sm col-6">
     <h3>Добавте новую задачу:</h3>
     <form action="/new" method="POST">
         <div class="form-group">

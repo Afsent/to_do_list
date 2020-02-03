@@ -17,8 +17,8 @@
 
 <body>
 % include('header.tpl')
-<div class="container">
-    <h3>Изменить задачу под нод номером {{no}}</h3>
+<div class="container-sm col-6">
+    <h3>Изменить задачу:</h3>
     <form action="/edit/{{no}}" method="post">
         <div class="form-group">
             <label>Название:</label>

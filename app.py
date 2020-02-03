@@ -218,10 +218,7 @@ def del_task(no, db):
             db.execute(
                 "DELETE FROM todo.tasks WHERE ID_tasks = %s AND "
                 "ID_user = %s;", (no, user_id))
-
-            # msg = f'Задача под номером {no} успешно удалена'
         except:
-            # msg = f'Задачу под номером {no} удалить не удалось'
             pass
         return redirect('/todo')
 

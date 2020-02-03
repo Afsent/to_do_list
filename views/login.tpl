@@ -27,7 +27,7 @@
         </div>
     </div>
 %end
-<div class="container-sm col-6">
+<div class="container-sm col-4">
     <h3>Добро пожаловать</h3>
     <form action="/login" method="POST">
         <div class="form-group">

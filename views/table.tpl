@@ -17,28 +17,27 @@
 <body>
 % include('header.tpl')
 %if msg:
-    <div class="container-sm col-6" align="center">
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{msg}}
-            <button type="button" class="close" data-dismiss="alert"
-                    aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
+<div class="container-sm col-6" align="center">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{msg}}
+        <button type="button" class="close" data-dismiss="alert"
+                aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
+</div>
 %end
-<div class="container">
+<div class="container-sm col-6">
     <h1>Список задач:</h1>
     <table class="table table-hover">
         <tr>
-            <td><h3>ID</h3></td>
-            <td><h3>Задача</h3></td>
+            <td><h5>№</h5></td>
+            <td><h5>Задача</h5></td>
         </tr>
-        %for row in rows:
+        %for id, row in enumerate(rows):
         <tr>
-            %for col in row.values():
-            <td>{{col}}</td>
-            %end
+            <td>{{id + 1}}</td>
+            <td>{{list(row.values())[1]}}</td>
             <td>
                 <a href="/edit/{{int(list(row.values())[0])}}"
                    class="btn btn-warning mb-2">Изменить</a>
