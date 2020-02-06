@@ -17,15 +17,15 @@
 <body>
 % include('header.tpl')
 %if msg:
-    <div class="container-sm col-6" align="center">
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{msg}}
-            <button type="button" class="close" data-dismiss="alert"
-                    aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
+<div class="container-sm col-6" align="center">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{msg}}
+        <button type="button" class="close" data-dismiss="alert"
+                aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
+</div>
 %end
 <div class="container-sm col-4">
     <h3>Добро пожаловать</h3>
@@ -39,11 +39,6 @@
             <label for="inputPassword4">Пароль</label>
             <input type="password" class="form-control"
                    id="inputPassword4" name="password">
-        </div>
-        <div class="form-group">
-            <label for="inputPassword5">Пароль</label>
-            <input type="password" class="form-control"
-                   id="inputPassword5" name="password">
         </div>
         <input type="submit" name="save" value="Войти"
                class="btn btn-primary mb-2">
