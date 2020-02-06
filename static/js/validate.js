@@ -57,8 +57,7 @@ $(document).ready(function () {
                 submitButton.disabled = false;
             } else {
                 $(this).css({'border': '1px solid #ff0000'});
-                $('#validPassword2').text('Пароли не совпадают' +
-                    ' символов').css({'color': 'red'});
+                $('#validPassword2').text('Пароли не совпадают').css({'color': 'red'});
                 submitButton.disabled = true;
             }
         } else {

@@ -48,7 +48,7 @@ def main():
 
 @app.get('/registration')
 def registration():
-    return template('registration', msg='')
+    return template('registration', msg='', data='')
 
 
 @app.post('/registration')
@@ -60,9 +60,16 @@ def registration(db):
     password1 = request.POST.password1.strip()
     password2 = request.POST.password2.strip()
 
+    data = {
+        'name': name,
+        'surname': surname,
+        'email': email,
+        'login': login
+    }
+
     if exist(db, email, 'Email'):
         msg = 'Данный email уже используется'
-        return template('registration', msg=msg)
+        return template('registration', msg=msg, data=data)
 
     if not validate_email(email):
         msg = 'Неверный формат email'
