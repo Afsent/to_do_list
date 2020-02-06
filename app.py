@@ -16,7 +16,7 @@ app.config['SECRET_KEY'] = key
 
 
 def validate_email(email):
-    pattern = re.compile(r'^\w{3,}@\w{3,}\.\w{2,4}$')
+    pattern = re.compile(r'^\w{3,}@\w{2,}\.\w{2,4}$')
     match = re.fullmatch(pattern, email)
     return True if match else False
 
@@ -57,7 +57,8 @@ def registration(db):
     surname = request.POST.surname.strip()
     email = request.POST.email.strip()
     login = request.POST.login.strip()
-    password = request.POST.password.strip()
+    password1 = request.POST.password1.strip()
+    password2 = request.POST.password2.strip()
 
     if exist(db, email, 'Email'):
         msg = 'Данный email уже используется'
@@ -71,13 +72,17 @@ def registration(db):
         msg = 'Данный логин уже используется'
         return template('registration', msg=msg)
 
-    if len(password) < 8:
+    if len(password1) < 8:
         msg = 'Пароль должен быть не менее 8 символов'
+        return template('registration', msg=msg)
+
+    if password1 != password2:
+        msg = 'Пароли не совпадают'
         return template('registration', msg=msg)
 
     db.execute(
         "INSERT INTO todo.users(Name,Surname,Email,Login, Password) VALUES (%s, %s, %s, %s, %s);",
-        (name, surname, email, login, password))
+        (name, surname, email, login, password1))
 
     db.execute("SELECT ID_user FROM todo.users WHERE Login LIKE %s;", (login,))
     user = db.fetchone()

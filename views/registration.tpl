@@ -60,8 +60,14 @@
         <div class="form-group">
             <label for="inputPassword4">Пароль</label>
             <input type="password" class="form-control"
-                   id="inputPassword4" name="password" required>
+                   id="inputPassword4" name="password1" required>
             <span id="validPassword"></span>
+        </div>
+        <div class="form-group">
+            <label for="inputPassword5">Пароль</label>
+            <input type="password" class="form-control"
+                   id="inputPassword5" name="password2" required>
+            <span id="validPassword2"></span>
         </div>
         <input type="submit" name="save" value="Зарегистрироваться"
                class="btn btn-primary mb-2" id="button">

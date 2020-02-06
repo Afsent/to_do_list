@@ -40,6 +40,11 @@
             <input type="password" class="form-control"
                    id="inputPassword4" name="password">
         </div>
+        <div class="form-group">
+            <label for="inputPassword5">Пароль</label>
+            <input type="password" class="form-control"
+                   id="inputPassword5" name="password">
+        </div>
         <input type="submit" name="save" value="Войти"
                class="btn btn-primary mb-2">
     </form>
