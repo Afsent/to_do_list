@@ -47,7 +47,7 @@
             <div class="form-group col-md-6">
                 <label>Имя</label>
                 <input type="text" size="100" maxlength="100" name="first_name"
-                       class="form-control" value="{{name}}" required>
+                       class="form-control" value="{{name}}" required autofocus>
             </div>
             <div class="form-group col-md-6">
                 <label>Фамилия</label>

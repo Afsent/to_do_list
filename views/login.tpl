@@ -33,12 +33,12 @@
         <div class="form-group">
             <label for="inputPassword4">Логин</label>
             <input type="text" class="form-control"
-                   id="inputLogin" name="login">
+                   id="inputLogin" name="login" autofocus required>
         </div>
         <div class="form-group">
             <label for="inputPassword4">Пароль</label>
             <input type="password" class="form-control"
-                   id="inputPassword4" name="password">
+                   id="inputPassword4" name="password" required>
         </div>
         <input type="submit" name="save" value="Войти"
                class="btn btn-primary mb-2">

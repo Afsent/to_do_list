@@ -21,9 +21,11 @@
     <form action="/new" method="POST">
         <div class="form-group">
             <label>Название:</label>
-            <input type="text" size="100" maxlength="100" name="task" class="form-control">
+            <input type="text" size="100" maxlength="100" name="task"
+                   class="form-control" autofocus>
         </div>
-        <input type="submit" name="save" value="Сохранить" class="btn btn-primary mb-2">
+        <input type="submit" name="save" value="Сохранить"
+               class="btn btn-primary mb-2">
     </form>
 </div>
 <!-- Optional JavaScript -->
