@@ -8,7 +8,9 @@ key = os.urandom(24)
 
 session_opts = {
     'session.type': 'ext:database',
+    'session.cookie_expires': True,
     'session.url': 'mysql://root:82134@localhost:3306/todo',
+    'session.timeout': 300,
 }
 bottle_app = Bottle()
 plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
