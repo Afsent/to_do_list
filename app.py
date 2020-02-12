@@ -1,18 +1,22 @@
+from beaker.middleware import SessionMiddleware
 import bottle_mysql
-from bottle import run, template, request, redirect, static_file, Bottle, \
-    response
+from bottle import run, template, request, redirect, static_file, Bottle
 import re
 import os
-import auth
 
 key = os.urandom(24)
-key_cookie = os.urandom(20)
 
-app = Bottle()
+session_opts = {
+    'session.type': 'ext:database',
+    'session.url': 'mysql://root:82134@localhost:3306/todo',
+}
+bottle_app = Bottle()
 plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
                              dbname='todo')
-app.install(plugin)
-app.config['SECRET_KEY'] = key
+bottle_app.install(plugin)
+bottle_app.config['SECRET_KEY'] = key
+
+app = SessionMiddleware(bottle_app, session_opts)
 
 
 def validate_email(email):
@@ -22,8 +26,8 @@ def validate_email(email):
 
 
 def is_auth():
-    token = request.get_cookie("token", secret=key_cookie)
-    user_id = auth.decode_auth_token(app, token)
+    s = request.environ.get('beaker.session')
+    user_id = 'user_id' in s
     return True if user_id else False
 
 
@@ -41,17 +45,17 @@ def exist(db, value, kind):
         return True
 
 
-@app.get('/')
+@bottle_app.get('/')
 def main():
     return template('main')
 
 
-@app.get('/registration')
+@bottle_app.get('/registration')
 def registration():
     return template('registration', msg='', data='')
 
 
-@app.post('/registration')
+@bottle_app.post('/registration')
 def registration(db):
     name = request.POST.first_name.strip()
     surname = request.POST.surname.strip()
@@ -94,17 +98,18 @@ def registration(db):
     db.execute("SELECT ID_user FROM todo.users WHERE Login LIKE %s;", (login,))
     user = db.fetchone()
 
-    token = auth.encode_auth_token(app, user['ID_user'])
-    response.set_cookie("token", token, secret=key_cookie)
+    s = request.environ.get('beaker.session')
+    s['user_id'] = f'{user["ID_user"]}'
+    s.save()
     return redirect("/todo")
 
 
-@app.get('/login')
+@bottle_app.get('/login')
 def sign_in():
     return template('login', msg='')
 
 
-@app.post('/login')
+@bottle_app.post('/login')
 def sign_in(db):
     login = request.POST.login.strip()
     password = request.POST.password.strip()
@@ -114,8 +119,9 @@ def sign_in(db):
     user = db.fetchone()
     if user:
         if password == user['Password']:
-            token = auth.encode_auth_token(app, user['ID_user'])
-            response.set_cookie("token", token, secret=key_cookie)
+            s = request.environ.get('beaker.session')
+            s['user_id'] = f'{user["ID_user"]}'
+            s.save()
             return redirect("/todo")
         else:
             return template('login', msg='Неправильный пароль')
@@ -124,19 +130,20 @@ def sign_in(db):
                                      'таким именем')
 
 
-@app.get('/logout')
+@bottle_app.get('/logout')
 def sign_out():
-    response.delete_cookie("token")
+    s = request.environ.get('beaker.session')
+    s.delete()
     return redirect('/')
 
 
-@app.get('/todo')
+@bottle_app.get('/todo')
 def todo_list(db):
     if not is_auth():
         return redirect('/login')
     else:
-        token = request.get_cookie("token", secret=key_cookie)
-        user_id = auth.decode_auth_token(app, token)
+        s = request.environ.get('beaker.session')
+        user_id = s['user_id']
         db.execute(
             "SELECT ID_tasks, Task FROM todo.tasks  WHERE Status = '1' AND "
             "ID_user = %s;", (user_id,))
@@ -144,13 +151,13 @@ def todo_list(db):
         return template('table', rows=rows, msg='')
 
 
-@app.get('/done')
+@bottle_app.get('/done')
 def done_list(db):
     if not is_auth():
         return redirect('/login')
     else:
-        token = request.get_cookie("token", secret=key_cookie)
-        user_id = auth.decode_auth_token(app, token)
+        s = request.environ.get('beaker.session')
+        user_id = s['user_id']
         db.execute(
             "SELECT ID_tasks, Task FROM todo.tasks WHERE Status LIKE '0' AND ID_user = %s;",
             (user_id,))
@@ -158,13 +165,13 @@ def done_list(db):
         return template('table', rows=rows, msg='')
 
 
-@app.post('/new')
+@bottle_app.post('/new')
 def new_item(db):
     if not is_auth():
         return redirect('/login')
     else:
-        token = request.get_cookie("token", secret=key_cookie)
-        user_id = auth.decode_auth_token(app, token)
+        s = request.environ.get('beaker.session')
+        user_id = s['user_id']
         new = request.POST.task.strip()
         db.execute("INSERT INTO todo.tasks(Task, Status, ID_user) VALUES ("
                    "%s,%s,%s);",
@@ -172,7 +179,7 @@ def new_item(db):
         return redirect("/todo")
 
 
-@app.get('/new')
+@bottle_app.get('/new')
 def new_item():
     if not is_auth():
         return redirect('/login')
@@ -180,13 +187,13 @@ def new_item():
         return template('new_task.tpl')
 
 
-@app.post('/edit/<no:int>')
+@bottle_app.post('/edit/<no:int>')
 def edit_item(no, db):
     if not is_auth():
         return redirect('/login')
     else:
-        token = request.get_cookie("token", secret=key_cookie)
-        user_id = auth.decode_auth_token(app, token)
+        s = request.environ.get('beaker.session')
+        user_id = s['user_id']
 
         edit = request.POST.task.strip()
         status = request.POST.status.strip()
@@ -205,13 +212,13 @@ def edit_item(no, db):
         return redirect('/todo')
 
 
-@app.get('/edit/<no:int>')
+@bottle_app.get('/edit/<no:int>')
 def edit_item(no, db):
     if not is_auth():
         return redirect('/login')
     else:
-        token = request.get_cookie("token", secret=key_cookie)
-        user_id = auth.decode_auth_token(app, token)
+        s = request.environ.get('beaker.session')
+        user_id = s['user_id']
         db.execute("SELECT Task FROM todo.tasks WHERE ID_tasks = %s AND "
                    "ID_user = %s;",
                    (no, user_id))
@@ -219,14 +226,14 @@ def edit_item(no, db):
         return template('edit_task', old=list(cur_data.values())[0], no=no)
 
 
-@app.post('/del/<no:int>')
+@bottle_app.post('/del/<no:int>')
 def del_task(no, db):
     if not is_auth():
         return redirect('/login')
     else:
         try:
-            token = request.get_cookie("token", secret=key_cookie)
-            user_id = auth.decode_auth_token(app, token)
+            s = request.environ.get('beaker.session')
+            user_id = s['user_id']
             db.execute(
                 "DELETE FROM todo.tasks WHERE ID_tasks = %s AND "
                 "ID_user = %s;", (no, user_id))
@@ -235,19 +242,21 @@ def del_task(no, db):
         return redirect('/todo')
 
 
-@app.route('/static/:filename#.*#')
+@bottle_app.route('/static/:filename#.*#')
 def send_static(filename):
     return static_file(filename, root='./static/')
 
 
-@app.error(403)
+@bottle_app.error(403)
 def mistake403(err):
     return 'Неверный формат передаваемого параметра!'
 
 
-@app.error(404)
+@bottle_app.error(404)
 def mistake404(err):
     return 'Ошибка 404. Данной страницы не существует!'
 
 
-run(app, reloader=True, debug=True)
+run(app=app, host='localhost', port='5000',
+    debug=True,
+    reloader=True)

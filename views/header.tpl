@@ -21,7 +21,8 @@
         </div>
         <ul class="nav navbar-nav navbar-right">
             % from bottle import request
-            % if request.get_cookie('token') is None:
+            % s = request.environ.get('beaker.session')
+            % if 'user_id' not in s:
             <li class="nav-item">
                 <a class="nav-link" href="/registration">Регистрация</a>
             </li>
