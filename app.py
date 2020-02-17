@@ -37,10 +37,8 @@ def exist(db, value, kind):
         db.execute("SELECT ID_user FROM "
                    "todo.users WHERE Email LIKE %s;", (value,))
     item = db.fetchone()
-    if item is None:
-        return False
-    else:
-        return True
+
+    return False if item is None else True
 
 
 @bottle_app.get('/')
@@ -67,20 +65,16 @@ def registration(db):
     if exist(db, email, 'Email'):
         msg = 'Данный email уже используется'
         return template('registration', msg=msg, data=data)
-
-    if not validate_email(email):
+    elif not validate_email(email):
         msg = 'Неверный формат email'
         return template('registration', msg=msg, data=data)
-
-    if exist(db, login, 'Login'):
+    elif exist(db, login, 'Login'):
         msg = 'Данный логин уже используется'
         return template('registration', msg=msg, data=data)
-
-    if len(password1) < 8:
+    elif len(password1) < 8:
         msg = 'Пароль должен быть не менее 8 символов'
         return template('registration', msg=msg, data=data)
-
-    if password1 != password2:
+    elif password1 != password2:
         msg = 'Пароли не совпадают'
         return template('registration', msg=msg, data=data)
 
@@ -231,9 +225,10 @@ def del_task(no, db):
             db.execute(
                 "DELETE FROM todo.tasks WHERE ID_tasks = %s AND "
                 "ID_user = %s;", (no, user_id))
+            msg = 'Задача успешно удалена'
         except:
-            pass
-        return redirect('/todo')
+            msg = 'Ошибка при удалении. Попробуйте еще раз'
+        return template("table", rows='', msg=msg)
 
 
 @bottle_app.route('/static/:filename#.*#')
