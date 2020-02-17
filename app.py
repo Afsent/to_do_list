@@ -2,9 +2,6 @@ from beaker.middleware import SessionMiddleware
 import bottle_mysql
 from bottle import run, template, request, redirect, static_file, Bottle
 import re
-import os
-
-key = os.urandom(24)
 
 session_opts = {
     'session.type': 'ext:database',
@@ -16,7 +13,6 @@ bottle_app = Bottle()
 plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
                              dbname='todo')
 bottle_app.install(plugin)
-bottle_app.config['SECRET_KEY'] = key
 
 app = SessionMiddleware(bottle_app, session_opts)
 
@@ -49,7 +45,7 @@ def exist(db, value, kind):
 
 @bottle_app.get('/')
 def main():
-    return template('main')
+    return template('main', msg='')
 
 
 @bottle_app.get('/registration')
@@ -66,12 +62,7 @@ def registration(db):
     password1 = request.POST.password1.strip()
     password2 = request.POST.password2.strip()
 
-    data = {
-        'name': name,
-        'surname': surname,
-        'email': email,
-        'login': login
-    }
+    data = {'name': name, 'surname': surname, 'email': email, 'login': login}
 
     if exist(db, email, 'Email'):
         msg = 'Данный email уже используется'
@@ -79,19 +70,19 @@ def registration(db):
 
     if not validate_email(email):
         msg = 'Неверный формат email'
-        return template('registration', msg=msg)
+        return template('registration', msg=msg, data=data)
 
     if exist(db, login, 'Login'):
         msg = 'Данный логин уже используется'
-        return template('registration', msg=msg)
+        return template('registration', msg=msg, data=data)
 
     if len(password1) < 8:
         msg = 'Пароль должен быть не менее 8 символов'
-        return template('registration', msg=msg)
+        return template('registration', msg=msg, data=data)
 
     if password1 != password2:
         msg = 'Пароли не совпадают'
-        return template('registration', msg=msg)
+        return template('registration', msg=msg, data=data)
 
     db.execute(
         "INSERT INTO todo.users(Name,Surname,Email,Login, Password) VALUES (%s, %s, %s, %s, %s);",
@@ -103,7 +94,8 @@ def registration(db):
     s = request.environ.get('beaker.session')
     s['user_id'] = f'{user["ID_user"]}'
     s.save()
-    return redirect("/todo")
+    msg = 'Вы успешно зарегистрировались'
+    return template('table', rows='', msg=msg)
 
 
 @bottle_app.get('/login')
@@ -124,7 +116,8 @@ def sign_in(db):
             s = request.environ.get('beaker.session')
             s['user_id'] = f'{user["ID_user"]}'
             s.save()
-            return redirect("/todo")
+            msg = 'Вы успешно вошли'
+            return template('table', rows='', msg=msg)
         else:
             return template('login', msg='Неправильный пароль')
     else:
@@ -136,7 +129,8 @@ def sign_in(db):
 def sign_out():
     s = request.environ.get('beaker.session')
     s.delete()
-    return redirect('/')
+    msg = 'Вы успешно вышли'
+    return template('main', msg=msg)
 
 
 @bottle_app.get('/todo')
@@ -178,7 +172,8 @@ def new_item(db):
         db.execute("INSERT INTO todo.tasks(Task, Status, ID_user) VALUES ("
                    "%s,%s,%s);",
                    (new, 1, user_id))
-        return redirect("/todo")
+        msg = 'Задача успешно создана'
+        return template("table", rows='', msg=msg)
 
 
 @bottle_app.get('/new')
@@ -200,18 +195,15 @@ def edit_item(no, db):
         edit = request.POST.task.strip()
         status = request.POST.status.strip()
 
-        if status == 'нужно сделать':
-            status = 1
-        else:
-            status = 0
+        status = 1 if status == 'нужно сделать' else 0
 
         db.execute(
             "UPDATE todo.tasks SET Task = %s, Status = %s WHERE ID_tasks = "
             "%s AND ID_user = %s;",
             (edit, status, no, user_id))
 
-        # msg = f'Задача под номером {no} успешно обновлена'
-        return redirect('/todo')
+        msg = f'Задача под номером {no} успешно обновлена'
+        return template("table", rows='', msg=msg)
 
 
 @bottle_app.get('/edit/<no:int>')
@@ -259,6 +251,6 @@ def mistake404(err):
     return 'Ошибка 404. Данной страницы не существует!'
 
 
-run(app=app, host='localhost', port='5000',
+run(app=app, host='localhost', port='8000',
     debug=True,
     reloader=True)
