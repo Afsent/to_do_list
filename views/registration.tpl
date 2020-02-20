@@ -1,14 +1,8 @@
 % rebase('base.tpl', msg=msg, title='Регистрация')
 %if data:
-    %name = data['name']
-    %surname = data['surname']
-    %email = data['email']
-    %login = data['login']
+    %name, surname, email, login = data.values()
 %else :
-    %name = ''
-    %surname = ''
-    %email = ''
-    %login = ''
+    %name = surname = email = login = ''
 %end
 <div class="container-sm col-6">
     <h3>Добро пожаловать</h3>
@@ -17,7 +11,8 @@
             <div class="form-group col-md-6">
                 <label>Имя</label>
                 <input type="text" size="100" maxlength="100" name="first_name"
-                       class="form-control" value="{{name}}" required autofocus>
+                       class="form-control" value="{{name}}" required
+                       autofocus>
             </div>
             <div class="form-group col-md-6">
                 <label>Фамилия</label>

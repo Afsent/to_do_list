@@ -1,5 +1,4 @@
 % rebase('base.tpl', msg=msg, title='Вход')
-
 <div class="container-sm col-4">
     <h3>Добро пожаловать</h3>
     <form action="/login" method="POST">
