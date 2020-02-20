@@ -1,4 +1,5 @@
 % rebase('base.tpl', msg=msg, title='Вход')
+
 <div class="container-sm col-4">
     <h3>Добро пожаловать</h3>
     <form action="/login" method="POST">
@@ -14,5 +15,6 @@
         </div>
         <input type="submit" name="save" value="Войти"
                class="btn btn-primary mb-2">
+        <input name="csrf_token" type="hidden" value="{{csrf_token()}}">
     </form>
 </div>

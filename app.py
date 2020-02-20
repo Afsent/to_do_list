@@ -1,6 +1,11 @@
+import os
+from functools import wraps
+from random import choice
+from string import ascii_letters, digits
+
 from beaker.middleware import SessionMiddleware
 import bottle_mysql
-from bottle import run, template, request, redirect, static_file, Bottle
+from bottle import run, template, request, redirect, static_file, Bottle, abort
 import re
 
 session_opts = {
@@ -15,6 +20,31 @@ plugin = bottle_mysql.Plugin(dbuser='root', dbpass="82134",
 bottle_app.install(plugin)
 
 app = SessionMiddleware(bottle_app, session_opts)
+
+
+@bottle_app.hook('before_request')
+def csrf_protect():
+    if request.method == 'POST':
+        sess = request.environ.get('beaker.session')
+        req_token = request.forms.get('csrf_token')
+        # if no token is in session or it doesn't match the request one, abort
+        if 'csrf_token' not in sess or sess['csrf_token'] != req_token:
+            abort(403)
+
+
+def str_random(length):
+    '''Generate a random string using range [a-zA-Z0-9].'''
+    chars = ascii_letters + digits
+    return ''.join([choice(chars) for _ in range(length)])
+
+
+def gen_token():
+    '''Put a generated token in session if none exist and return it.'''
+    sess = request.environ.get('beaker.session')
+    if 'csrf_token' not in sess:
+        sess['csrf_token'] = str_random(32)
+        sess.save()
+    return sess['csrf_token']
 
 
 def validate_email(email):
@@ -94,7 +124,7 @@ def registration(db):
 
 @bottle_app.get('/login')
 def sign_in():
-    return template('login', msg='')
+    return template('login', msg='', csrf_token=gen_token)
 
 
 @bottle_app.post('/login')
@@ -111,12 +141,13 @@ def sign_in(db):
             s['user_id'] = f'{user["ID_user"]}'
             s.save()
             msg = 'Вы успешно вошли'
-            return template('table', rows='', msg=msg)
+            return template('table', rows='', msg=msg, csrf_token=gen_token)
         else:
-            return template('login', msg='Неправильный пароль')
+            return template('login', msg='Неправильный пароль',
+                            csrf_token=gen_token)
     else:
         return template('login', msg='Не удалось найти пользователя с '
-                                     'таким именем')
+                                     'таким именем', csrf_token=gen_token)
 
 
 @bottle_app.get('/logout')
