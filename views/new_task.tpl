@@ -9,5 +9,6 @@
         </div>
         <input type="submit" name="save" value="Сохранить"
                class="btn btn-primary mb-2">
+        <input name="csrf_token" type="hidden" value="{{csrf_token()}}">
     </form>
 </div>

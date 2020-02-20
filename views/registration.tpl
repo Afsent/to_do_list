@@ -52,5 +52,6 @@
         </div>
         <input type="submit" name="save" value="Зарегистрироваться"
                class="btn btn-primary mb-2" id="button">
+        <input name="csrf_token" type="hidden" value="{{csrf_token()}}">
     </form>
 </div>

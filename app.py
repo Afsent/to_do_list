@@ -78,7 +78,7 @@ def main():
 
 @bottle_app.get('/registration')
 def registration():
-    return template('registration', msg='', data='')
+    return template('registration', msg='', data='', csrf_token=gen_token)
 
 
 @bottle_app.post('/registration')
@@ -94,19 +94,24 @@ def registration(db):
 
     if exist(db, email, 'Email'):
         msg = 'Данный email уже используется'
-        return template('registration', msg=msg, data=data)
+        return template('registration', msg=msg, data=data,
+                        csrf_token=gen_token)
     elif not validate_email(email):
         msg = 'Неверный формат email'
-        return template('registration', msg=msg, data=data)
+        return template('registration', msg=msg, data=data,
+                        csrf_token=gen_token)
     elif exist(db, login, 'Login'):
         msg = 'Данный логин уже используется'
-        return template('registration', msg=msg, data=data)
+        return template('registration', msg=msg, data=data,
+                        csrf_token=gen_token)
     elif len(password1) < 8:
         msg = 'Пароль должен быть не менее 8 символов'
-        return template('registration', msg=msg, data=data)
+        return template('registration', msg=msg, data=data,
+                        csrf_token=gen_token)
     elif password1 != password2:
         msg = 'Пароли не совпадают'
-        return template('registration', msg=msg, data=data)
+        return template('registration', msg=msg, data=data,
+                        csrf_token=gen_token)
 
     db.execute(
         "INSERT INTO todo.users(Name,Surname,Email,Login, Password) VALUES (%s, %s, %s, %s, %s);",
@@ -206,7 +211,7 @@ def new_item():
     if not is_auth():
         return redirect('/login')
     else:
-        return template('new_task.tpl')
+        return template('new_task.tpl', csrf_token=gen_token)
 
 
 @bottle_app.post('/edit/<no:int>')
@@ -242,7 +247,8 @@ def edit_item(no, db):
                    "ID_user = %s;",
                    (no, user_id))
         cur_data = db.fetchone()
-        return template('edit_task', old=list(cur_data.values())[0], no=no)
+        return template('edit_task', old=list(cur_data.values())[0], no=no,
+                        csrf_token=gen_token)
 
 
 @bottle_app.post('/del/<no:int>')
