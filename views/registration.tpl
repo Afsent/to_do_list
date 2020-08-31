@@ -10,13 +10,13 @@
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label>Имя</label>
-                <input type="text" size="100" maxlength="100" name="first_name"
+                <input type="text" size="100" name="first_name"
                        class="form-control" value="{{name}}" required
                        autofocus>
             </div>
             <div class="form-group col-md-6">
                 <label>Фамилия</label>
-                <input type="text" size="100" maxlength="100" name="surname"
+                <input type="text" size="100" name="surname"
                        class="form-control" value="{{surname}}" required>
             </div>
         </div>

@@ -5,7 +5,6 @@
         <div class="form-group">
             <label>Название:</label>
             <input type="text" name="task" value="{{old}}"
-                   size="100"
                    maxlength="100" class="form-control" autofocus>
         </div>
         <div class="form-group">
